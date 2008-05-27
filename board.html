@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>My Picross</title>
 <link rel="stylesheet" type="text/css" media="screen" href="picross.css" />
-<script type="text/javascript" src="/picross.js">
+<script type="text/javascript" src="picross.js">
 </script>
 </head>
 <body>
@@ -60,6 +60,8 @@
     <td id="r05c05" ></td>
   </tr>
 </table>
+<input name="Undo" type="submit" value="Undo Move" onClick="UndoMove()">
+<br />
 <br />
 <form id="dform" onSubmit="return false">
   rows<input name="Board_Rows" type="text" maxlength=2 size=1><br />
@@ -73,6 +75,7 @@
 </html>
 <script>
 window.onmouseup = GlobalMouseUp;
+window.oncontextmenu = GlobalMouseUp;
 NewBoard(5, 5, 50);
 </script>
 

@@ -4,9 +4,24 @@ var mou;
 var mouse_button = 0;
 var erase = false;
 var last_cell_color = "";
+var undo_stack = [];
 //mou.button yeilds left=>0, middle=>1, right=>2 other buttons need to be captured differently
 var board;
 
+function PrintTable(){
+  //prints table for debuggin purposes
+  document.forms['dform'].debug.value = '';
+  str = '';
+  for ( row in board ) {   
+    for ( col in board[row] ) {   
+      if (col != 0) str += ' . ';//document.forms['dform'].debug.value += ' . ';
+      //document.forms['dform'].debug.value += board[row].length;
+      str += board[row][col];
+    }
+    str += '\n';
+  }
+  document.forms['dform'].debug.value = str;
+}
 function PadDigits(n, totalDigits) { 
   n = n.toString(); 
   var pd = ''; 
@@ -17,55 +32,63 @@ function PadDigits(n, totalDigits) {
   } 
   return pd + n.toString(); 
 } 
+function GlobalMouseUp() {
+  mouse_down = false;
+  mouse_button = 0;
+  erase = false;
+  return false;
+}
+function UndoMove(){
+  var move = undo_stack.pop();
+  if (move) move[0].style.backgroundColor = move[1];
+}
 function DrawCell(div, button) {
   var cell = document.getElementById(div);
+  undo_stack.push([cell, cell.style.backgroundColor]);
   cell.style.backgroundColor = last_cell_color;
 }
-function Toggle(div, button){
+function ToggleCellColor(div, button){
   var cell = document.getElementById(div);
   if (cell.style.backgroundColor == ""){
     if (button == 0){
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "#ff44ff";
       last_cell_color = "#ff44ff";
     }
     if (button == 2) {
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "#000000";
       last_cell_color = "#000000";
     }
   }
   else if (cell.style.backgroundColor == "rgb(255, 68, 255)" || cell.style.backgroundColor == "#ff44ff") {
     if (button == 0) {
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "";
       erase = true;
       last_cell_color = "";
     }
     if (button == 2) {
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "#000000";
       last_cell_color = "#000000";
     }
   }
   else {
     if (button == 0) {
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "#ff44ff";
       last_cell_color = "#ff44ff";
     }
     if (button == 2) {
+      undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "";
       erase = true;
       last_cell_color = "";
     }
   }
 }
-function KeyCheck(e){
-   var KeyID = (window.event) ? event.keyCode : e.keyCode;
-   alert("heyy " + KeyID);
-}
-function GlobalMouseUp() {
-  mouse_down = false;
-  mouse_button = 0;
-  erase = false;
-}
-function Mouse(tog, button) {
+function ToggleMouse(tog, button) {
   mouse_button = button;
   if (mouse_down && tog == "up") {
     GlobalMouseUp();
@@ -78,11 +101,11 @@ function CatchContext(e) {
   if (!e) 
     var e = window.event;
   if (e.type == "mousedown")
-    Mouse("down", e.button);
+    ToggleMouse("down", e.button);
   if (e.type == "mouseup") 
-    Mouse("up", 0);
+    ToggleMouse("up", 0);
   if (mouse_down) 
-    Toggle(e.target.id, e.button);
+    ToggleCellColor(e.target.id, e.button);
   
   e.cancelBubble = true;
   if (e.stopPropagation) 
@@ -95,26 +118,6 @@ function DrawLine (e) {
   if (mouse_down) {
     DrawCell(e.target.id, mouse_button);
   }
-}
-function show_props(obj, obj_name) { 
-  var result = "" 
-  for (var i in obj) 
-    result += i + " = " + obj[i] + "\n" 
-  return result; 
-} 
-function PrintTable(){
-  //look at rows
-  document.forms['dform'].debug.value = '';
-  str = '';
-  for ( row in board ) {   
-    for ( col in board[row] ) {   
-      if (col != 0) str += ' . ';//document.forms['dform'].debug.value += ' . ';
-      //document.forms['dform'].debug.value += board[row].length;
-      str += board[row][col];
-    }
-    str += '\n';
-  }
-  document.forms['dform'].debug.value = str;
 }
 function FillClueValues(row_or_col) {
   if (row_or_col == 'row') {
@@ -160,12 +163,6 @@ function FillClueValues(row_or_col) {
     document.getElementById(row_or_col_id).innerHTML = value_string;
   } 
 }
-function CreateRows(){
-  FillClueValues('row');
-}
-function CreateCols() {
-  FillClueValues('col');
-}
 function BlankBoard() {
   for (row in board) {
     for (col in board[0]) {
@@ -191,6 +188,7 @@ function MakeBoardClickable(){
   }
 }
 function DrawBoard() {
+  //here is where we write to the DOM in order to write the html to make up the board
   var row;
   var col;
   var table_width = parseInt(((board[0].length/2)*10)+50);
@@ -235,15 +233,13 @@ function DrawBoard() {
   mytable.style.width = table_width + 'px';
   mytable.innerHTML = table_text;
   PrintTable();
-  CreateRows();
-  CreateCols();
+  FillClueValues('row');
+  FillClueValues('col');
   BlankBoard();
 }
-function PopulateBoard() {
-  DrawBoard();
-  MakeBoardClickable();
-}
-function CreateBoard(rows, cols, chance) {//chance is a float
+function CreateBoard(rows, cols, chance) {
+  //This function determines the color values of all spaces
+  //chance is a float
   board = new Array(row);
   for (var row=0;row<rows;row++){
     board[row] = new Array(cols);
@@ -258,7 +254,9 @@ function NewBoard(rows, cols, chance){
   if (cols < 1) cols = 1;
   if (chance < 1) chance = 50;
   CreateBoard(rows, cols, parseInt(chance)/100.0);
-  PopulateBoard();
+  DrawBoard();
+  MakeBoardClickable();
+  undo_stack = [];
   return false;
 }
 
