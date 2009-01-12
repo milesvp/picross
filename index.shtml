@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>My Picross</title>
+<link rel="stylesheet" type="text/css" media="screen" href="./picross.css" />
+<script type="text/javascript" src="./picross.js">
+</script>
+</head>
+<body>
+<table id="mytable" cellspacing="0" summary="Here We be Picture Crosswording YO!">
+<caption>Picture Crossword!</caption>
+</table>
+<br />
+<form id="dform" onSubmit="return false">
+  <input name="Board_Rows" type="text" maxlength=2 size=1>rows<br />
+  <input name="Board_Cols" type="text" maxlength=2 size=1>cols<br />
+  <input name="Board_Chance" type="text" maxlength=2 size=1>chance that given square is pink<br />
+  <input name="Submit" type="submit" value="New Board" onClick="NewBoard(document.forms['dform'].Board_Rows.value, document.forms['dform'].Board_Cols.value, document.forms['dform'].Board_Chance.value)">          
+  <br />
+  <textarea id="debug_win" name="debug" rows=10 cols=80></textarea>
+</form>
+</body>
+</html>
+<script>
+window.onmouseup = GlobalMouseUp;
+NewBoard(5, 5, 50);
+</script>
+
