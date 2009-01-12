@@ -232,7 +232,7 @@ function DrawBoard() {
   var mytable = document.getElementById('mytable');
   mytable.style.width = table_width + 'px';
   mytable.innerHTML = table_text;
-  PrintTable();
+  //PrintTable();
   FillClueValues('row');
   FillClueValues('col');
   BlankBoard();
