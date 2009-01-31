@@ -104,7 +104,7 @@ function CatchContext(e) {
     ToggleMouse("down", e.button);
   if (e.type == "mouseup") 
     ToggleMouse("up", 0);
-  if (mouse_down) 
+  if (mouse_down && (e.type != "contextmenu")) 
     ToggleCellColor(e.target.id, e.button);
   
   e.cancelBubble = true;
