@@ -5,6 +5,8 @@ var mouse_button = 0;
 var erase = false;
 var last_cell_color = "";
 var undo_stack = [];
+var starting_id = "";
+var second_id = "";
 //mou.button yeilds left=>0, middle=>1, right=>2 other buttons need to be captured differently
 var board;
 
@@ -97,26 +99,75 @@ function ToggleMouse(tog, button) {
     mouse_down = true;
   }
 }
+function SetStartingId(id){
+  starting_id = id;
+  second_id = "";
+}
+function GetTargetId(id){
+  return id;
+}
+function GetCol(id){
+  return id.split('c')[1];
+}
+function GetRow(id){
+  return id.split('c')[0].split('r')[1];
+}
+function SetSecondId(id){
+  if (!starting_id){
+    second_id = "";
+    starting_id = id;
+  }
+  else {
+    second_id = id;    
+  }
+}
 function CatchContext(e) {
   if (!e) 
     var e = window.event;
-  if (e.type == "mousedown")
+  if (e.type == "mousedown"){
+    SetStartingId(e.target.id);
     ToggleMouse("down", e.button);
+  }
   if (e.type == "mouseup") 
     ToggleMouse("up", 0);
-  if (mouse_down && (e.type != "contextmenu")) 
-    ToggleCellColor(e.target.id, e.button);
-  
+  if (mouse_down && (e.type != "contextmenu")) {
+    ToggleCellColor(GetTargetId(e.target.id), e.button);
+  }
   e.cancelBubble = true;
   if (e.stopPropagation) 
     e.stopPropagation();
   return false;
 }
+function WhichAxis(){
+  if (!second_id)
+    return "";
+  var starting_id_col = GetCol(starting_id);
+  var starting_id_row = GetRow(starting_id);
+  var second_id_col   = GetCol(second_id);
+  var second_id_row   = GetRow(second_id);
+  if (starting_id_col == second_id_col)
+    return "c";
+  if (starting_id_row == second_id_row)
+    return "r";
+}
+function GetCellToDraw(id){
+  var curr_cell_col   = GetCol(id);
+  var curr_cell_row   = GetRow(id);
+  var row_or_col      = WhichAxis();
+  if (row_or_col == "c")
+    return "r"+curr_cell_row+"c"+GetCol(starting_id);
+  else if (row_or_col == "r")
+    return "r"+GetRow(starting_id)+"c"+curr_cell_col;
+  else 
+    return id;
+}
 function DrawLine (e) {
   if (!e)
     var e = window.event;
   if (mouse_down) {
-    DrawCell(e.target.id, mouse_button);
+    if (!second_id)
+      SetSecondId(e.target.id);
+    DrawCell(GetCellToDraw(e.target.id), mouse_button);
   }
 }
 function FillClueValues(row_or_col) {
