@@ -1,4 +1,7 @@
 
+var rgb_color       = "rgb(255, 68, 255)";
+var hex_color       = "#ff44ff";
+var hex_alt_color   = "#000000";
 var mou;
 var mouse_down      = false;
 var mouse_button    = 0;
@@ -42,7 +45,7 @@ function UndoMove(){
   var move = undo_stack.pop();
   if (move) move[0].style.backgroundColor = move[1];
 }
-function DrawCell(div, button) {
+function DrawCellOld(div, button) {
   var cell = document.getElementById(div);
   undo_stack.push([cell, cell.style.backgroundColor]);
   cell.style.backgroundColor = last_cell_color;
@@ -52,16 +55,16 @@ function ToggleCellColor(div, button){
   if (cell.style.backgroundColor == ""){
     if (button == 0){
       undo_stack.push([cell, cell.style.backgroundColor]);
-      cell.style.backgroundColor = "#ff44ff";
-      last_cell_color = "#ff44ff";
+      cell.style.backgroundColor = hex_color;
+      last_cell_color = hex_color;
     }
     if (button == 2) {
       undo_stack.push([cell, cell.style.backgroundColor]);
-      cell.style.backgroundColor = "#000000";
-      last_cell_color = "#000000";
+      cell.style.backgroundColor = hex_alt_color;
+      last_cell_color = hex_alt_color;
     }
   }
-  else if (cell.style.backgroundColor == "rgb(255, 68, 255)" || cell.style.backgroundColor == "#ff44ff") {
+  else if (cell.style.backgroundColor == rgb_color || cell.style.backgroundColor == hex_color) {
     if (button == 0) {
       undo_stack.push([cell, cell.style.backgroundColor]);
       cell.style.backgroundColor = "";
@@ -70,15 +73,15 @@ function ToggleCellColor(div, button){
     }
     if (button == 2) {
       undo_stack.push([cell, cell.style.backgroundColor]);
-      cell.style.backgroundColor = "#000000";
-      last_cell_color = "#000000";
+      cell.style.backgroundColor = hex_alt_color;
+      last_cell_color = hex_alt_color;
     }
   }
   else {
     if (button == 0) {
       undo_stack.push([cell, cell.style.backgroundColor]);
-      cell.style.backgroundColor = "#ff44ff";
-      last_cell_color = "#ff44ff";
+      cell.style.backgroundColor = hex_color;
+      last_cell_color = hex_color;
     }
     if (button == 2) {
       undo_stack.push([cell, cell.style.backgroundColor]);
@@ -179,7 +182,7 @@ function DrawLineOld (e) {
   if (mouse_down) {
     if (!second_id)
       SetSecondId(e.target.id);
-    DrawCell(GetCellToDraw(e.target.id), mouse_button);
+    DrawCellOld(GetCellToDraw(e.target.id), mouse_button);
   }
 }
 function AddOffset(id, row_offset, col_offset){
@@ -190,11 +193,15 @@ function AddOffset(id, row_offset, col_offset){
   return "r"+PadNumber(curr_cell_row, 2)+"c"+PadNumber(curr_cell_col,2);
 }
 function DrawLine (start,stop) {
-  var RowOffset = GetRowOffset(start,stop);
-  var ColOffset = GetColOffset(start,stop);
-  if (RowOffset == 0){
+  var row_offset = GetRowOffset(start,stop);
+  var col_offset = GetColOffset(start,stop);
+  var offset = 0;
+  if (row_offset == 0){
+    while (offset <= row_offset){
+      offset += 1;
+    }
   }
-  else if (ColOffset == 0){
+  else if (col_offset == 0){
   
   }
   else 
