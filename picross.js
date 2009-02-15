@@ -1,7 +1,10 @@
 
+//Firefox: element.style.backgroundColor returns an rgb string value
 var rgb_color       = "rgb(255, 68, 255)";
+var rgb_alt_color   = "rgb(0, 0, 0)";
 var hex_color       = "#ff44ff";
 var hex_alt_color   = "#000000";
+var starting_color  = "";
 var mou;
 var mouse_down      = false;
 var mouse_button    = 0;
@@ -39,6 +42,10 @@ function GlobalMouseUp() {
   mouse_down = false;
   mouse_button = 0;
   erase = false;
+  starting_id = "";
+  second_id = "";
+  starting_id_color = "";
+  last_id = ""
   return false;
 }
 function UndoMove(){
@@ -51,11 +58,11 @@ function DrawCellOld(div, button) {
   cell.style.backgroundColor = last_cell_color;
 }
 function GetColor(button) {
-  if (button == 0)
-    return hex_color;
-  if (button == 2)
-    return hex_alt_color;
-  return "";
+  //if (button == 0)
+  //  return hex_color;
+  //if (button == 2)
+  //  return hex_alt_color;
+  return starting_color;
 }
 function DrawCell(id, button, overwrite) {
   var cell = document.getElementById(id);
@@ -137,17 +144,51 @@ function SetSecondId(id){
     second_id = id;    
   }
 }
+function SetStartingColor(id, button){
+  var cell = document.getElementById(id);
+  if (cell.style.backgroundColor == ""){
+    if (button == 0)
+      starting_color = hex_color;
+    else if (button == 2)
+      starting_color = hex_alt_color;
+    else
+      starting_color = "";
+  }
+  else if ((cell.style.backgroundColor == hex_color) || (cell.style.backgroundColor == rgb_color)) {
+    if (button == 0)
+      starting_color = "";
+    else if (button == 2)
+      starting_color = hex_alt_color;
+    else
+      starting_color = cell.style.backgroundColor;
+  }
+  else if ((cell.style.backgroundColor == hex_alt_color) || (cell.style.backgroundColor == rgb_alt_color)) {
+    if (button == 0)
+      starting_color = hex_color;
+    else if (button == 2)
+      starting_color = "";
+    else
+      starting_color = cell.style.backgroundColor;
+  }
+}
+function CatchMouseOver(e) {
+  if (!e)
+      var e = window.event;
+  DrawLine(starting_id, e.target.id, 1);
+}
 function CatchContext(e) {
   if (!e) 
     var e = window.event;
   if (e.type == "mousedown"){
-    SetStartingId(e.target.id);
     ToggleMouse("down", e.button);
+    SetStartingId(e.target.id);
+    SetStartingColor(e.target.id, e.button);
   }
   if (e.type == "mouseup") 
     ToggleMouse("up", 0);
   if (mouse_down && (e.type != "contextmenu")) {
-    ToggleCellColor(GetTargetId(e.target.id), e.button);
+    DrawLine(starting_id, e.target.id, true);
+    //ToggleCellColor(GetTargetId(e.target.id), e.button);
   }
   e.cancelBubble = true;
   if (e.stopPropagation) 
@@ -208,6 +249,8 @@ function AddOffset(id, row_offset, col_offset){
   return "r"+PadNumber(curr_cell_row, 2)+"c"+PadNumber(curr_cell_col,2);
 }
 function DrawLine (start,stop,overwrite) {
+  if (!start)
+    return false;
   var row_offset = GetRowOffset(start,stop);
   var col_offset = GetColOffset(start,stop);
   var offset = 0;
@@ -307,7 +350,7 @@ function MakeBoardClickable(){
       cell.onmouseup = CatchContext;
       cell.onmousedown = CatchContext;
       cell.oncontextmenu = CatchContext;
-      cell.onmouseover = DrawLineOld;
+      cell.onmouseover =  CatchMouseOver;
     }
   }
 }
