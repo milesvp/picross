@@ -1,12 +1,13 @@
 
-var mouse_down = false;
 var mou;
-var mouse_button = 0;
-var erase = false;
+var mouse_down      = false;
+var mouse_button    = 0;
+var erase           = false;
 var last_cell_color = "";
-var undo_stack = [];
-var starting_id = "";
-var second_id = "";
+var undo_stack      = [];
+var starting_id     = "";
+var second_id       = "";
+var last_id         = "";
 //mou.button yeilds left=>0, middle=>1, right=>2 other buttons need to be captured differently
 var board;
 
@@ -138,22 +139,36 @@ function CatchContext(e) {
     e.stopPropagation();
   return false;
 }
-function WhichAxis(){
-  if (!second_id)
+function WhichAxis(first, last){
+  if (!last)
     return "";
-  var starting_id_col = GetCol(starting_id);
-  var starting_id_row = GetRow(starting_id);
-  var second_id_col   = GetCol(second_id);
-  var second_id_row   = GetRow(second_id);
+  var starting_id_col = GetCol(first);
+  var starting_id_row = GetRow(first);
+  var second_id_col   = GetCol(last);
+  var second_id_row   = GetRow(last);
   if (starting_id_col == second_id_col)
     return "c";
   if (starting_id_row == second_id_row)
     return "r";
 }
+function GetRowOffset(first,last){
+  if (!last || !first)
+    return 0;
+  var starting_id_row = GetRow(first);
+  var second_id_row   = GetRow(last);
+  return parseInt(second_id_row,10) - parseInt(starting_id_row,10);
+}
+function GetColOffset(first,last){
+  if (!last || !first)
+    return 0;
+  var starting_id_col = GetCol(first);
+  var second_id_col   = GetCol(last);
+  return parseInt(second_id_col,10) - parseInt(starting_id_col,10);
+}
 function GetCellToDraw(id){
   var curr_cell_col   = GetCol(id);
   var curr_cell_row   = GetRow(id);
-  var row_or_col      = WhichAxis();
+  var row_or_col      = WhichAxis(starting_id, second_id);
   if (row_or_col == "c")
     return "r"+curr_cell_row+"c"+GetCol(starting_id);
   else if (row_or_col == "r")
@@ -161,7 +176,7 @@ function GetCellToDraw(id){
   else 
     return id;
 }
-function DrawLine (e) {
+function DrawLineOld (e) {
   if (!e)
     var e = window.event;
   if (mouse_down) {
@@ -169,6 +184,25 @@ function DrawLine (e) {
       SetSecondId(e.target.id);
     DrawCell(GetCellToDraw(e.target.id), mouse_button);
   }
+}
+function AddOffset(id, row_offset, col_offset){
+  var curr_cell_col = parseInt(GetCol(id),10);
+  var curr_cell_row = parseInt(GetRow(id),10);
+  curr_cell_row += row_offset;
+  curr_cell_col += col_offset;
+  return "r"+PadDigits(curr_cell_row, 2)+"c"+PadDigits(curr_cell_col,2);
+}
+function DrawLine (start,stop) {
+  var RowOffset = GetRowOffset(start,stop);
+  var ColOffset = GetColOffset(start,stop);
+  if (RowOffset == 0){
+  }
+  else if (ColOffset == 0){
+  
+  }
+  else 
+    return false;
+  return true;
 }
 function FillClueValues(row_or_col) {
   if (row_or_col == 'row') {
@@ -210,14 +244,14 @@ function FillClueValues(row_or_col) {
     var value_string = value_nozeroes.join(seperator);
     if (value_string == '')
       value_string = '0';
-    var row_or_col_id = row_or_col + PadDigits(parseInt(i)+1, 2);
+    var row_or_col_id = row_or_col + PadDigits(parseInt(i,10)+1, 2);
     document.getElementById(row_or_col_id).innerHTML = value_string;
   } 
 }
 function BlankBoard() {
   for (row in board) {
     for (col in board[0]) {
-      var div = document.getElementById("r" + PadDigits (parseInt(row)+1, 2) + "c" + PadDigits (parseInt(col)+1, 2));
+      var div = document.getElementById("r" + PadDigits (parseInt(row,10)+1, 2) + "c" + PadDigits (parseInt(col,10)+1, 2));
       div.style.backgroundColor = "";
     }
   }
@@ -234,7 +268,7 @@ function MakeBoardClickable(){
       cell.onmouseup = CatchContext;
       cell.onmousedown = CatchContext;
       cell.oncontextmenu = CatchContext;
-      cell.onmouseover = DrawLine;
+      cell.onmouseover = DrawLineOld;
     }
   }
 }
@@ -242,7 +276,7 @@ function DrawBoard() {
   //here is where we write to the DOM in order to write the html to make up the board
   var row;
   var col;
-  var table_width = parseInt(((board[0].length/2)*10)+50);
+  var table_width = parseInt(((board[0].length/2)*10)+50,10);
   table_text = '  <caption>Picture Crossword!</caption>\n'; 
   table_text += '  <tr>\n    <th scope="col" id="numcol" class="nobg"></th>\n';
   var col_head_class = "numcol";
@@ -304,7 +338,7 @@ function NewBoard(rows, cols, chance){
   if (rows < 1) rows = 1;
   if (cols < 1) cols = 1;
   if (chance < 1) chance = 50;
-  CreateBoard(rows, cols, parseInt(chance)/100.0);
+  CreateBoard(rows, cols, parseInt(chance,10)/100.0);
   DrawBoard();
   MakeBoardClickable();
   undo_stack = [];
