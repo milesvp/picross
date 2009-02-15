@@ -50,6 +50,21 @@ function DrawCellOld(div, button) {
   undo_stack.push([cell, cell.style.backgroundColor]);
   cell.style.backgroundColor = last_cell_color;
 }
+function GetColor(button) {
+  if (button == 0)
+    return hex_color;
+  if (button == 2)
+    return hex_alt_color;
+  return "";
+}
+function DrawCell(id, button, overwrite) {
+  var cell = document.getElementById(id);
+  if (overwrite || (cell.style.backgroundColor == "")) {
+    cell.style.backgroundColor = GetColor(button);
+    return true;
+  }
+  return false;
+}
 function ToggleCellColor(div, button){
   var cell = document.getElementById(div);
   if (cell.style.backgroundColor == ""){
@@ -192,17 +207,37 @@ function AddOffset(id, row_offset, col_offset){
   curr_cell_col += col_offset;
   return "r"+PadNumber(curr_cell_row, 2)+"c"+PadNumber(curr_cell_col,2);
 }
-function DrawLine (start,stop) {
+function DrawLine (start,stop,overwrite) {
   var row_offset = GetRowOffset(start,stop);
   var col_offset = GetColOffset(start,stop);
   var offset = 0;
-  if (row_offset == 0){
-    while (offset <= row_offset){
-      offset += 1;
+  if (col_offset == 0){
+    if (row_offset >= 0){
+      while (offset <= row_offset){
+        DrawCell(AddOffset(start, offset, 0), mouse_button, overwrite);
+        offset += 1;
+      }
+    }
+    else {
+      while (offset >= row_offset){
+        DrawCell(AddOffset(start, offset, 0), mouse_button, overwrite);
+        offset -= 1;
+      }
     }
   }
-  else if (col_offset == 0){
-  
+  else if (row_offset == 0){
+    if (col_offset >= 0){
+      while (offset <= col_offset){
+        DrawCell(AddOffset(start, 0, offset), mouse_button, overwrite);
+        offset += 1;
+      }
+    }
+    else {
+      while (offset >= col_offset){
+        DrawCell(AddOffset(start, 0, offset), mouse_button, overwrite);
+        offset -= 1;
+      }
+    }
   }
   else 
     return false;
