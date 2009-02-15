@@ -25,16 +25,13 @@ function PrintTable(){
   }
   document.forms['dform'].debug.value = str;
 }
-function PadDigits(n, totalDigits) { 
-  n = n.toString(); 
-  var pd = ''; 
-  if (totalDigits > n.length) { 
-    for (i=0; i < (totalDigits-n.length); i++) { 
-      pd += '0'; 
-    } 
-  } 
-  return pd + n.toString(); 
-} 
+function PadNumber(num, totalDigits) {
+  var num_padded = num.toString();
+  while (num_padded.length < totalDigits) {
+    num_padded = "0" + num_padded;
+  }
+  return num_padded;
+}
 function GlobalMouseUp() {
   mouse_down = false;
   mouse_button = 0;
@@ -190,7 +187,7 @@ function AddOffset(id, row_offset, col_offset){
   var curr_cell_row = parseInt(GetRow(id),10);
   curr_cell_row += row_offset;
   curr_cell_col += col_offset;
-  return "r"+PadDigits(curr_cell_row, 2)+"c"+PadDigits(curr_cell_col,2);
+  return "r"+PadNumber(curr_cell_row, 2)+"c"+PadNumber(curr_cell_col,2);
 }
 function DrawLine (start,stop) {
   var RowOffset = GetRowOffset(start,stop);
@@ -244,14 +241,14 @@ function FillClueValues(row_or_col) {
     var value_string = value_nozeroes.join(seperator);
     if (value_string == '')
       value_string = '0';
-    var row_or_col_id = row_or_col + PadDigits(parseInt(i,10)+1, 2);
+    var row_or_col_id = row_or_col + PadNumber(parseInt(i,10)+1, 2);
     document.getElementById(row_or_col_id).innerHTML = value_string;
   } 
 }
 function BlankBoard() {
   for (row in board) {
     for (col in board[0]) {
-      var div = document.getElementById("r" + PadDigits (parseInt(row,10)+1, 2) + "c" + PadDigits (parseInt(col,10)+1, 2));
+      var div = document.getElementById("r" + PadNumber (parseInt(row,10)+1, 2) + "c" + PadNumber (parseInt(col,10)+1, 2));
       div.style.backgroundColor = "";
     }
   }
@@ -263,7 +260,7 @@ function MakeBoardClickable(){
   var col;
   for ( row = 1; row <= board.length; row++ ) {
     for ( col = 1; col <= board[0].length; col++ ) {
-      cell_name = 'r' + PadDigits(row, 2) + 'c' + PadDigits(col, 2);
+      cell_name = 'r' + PadNumber(row, 2) + 'c' + PadNumber(col, 2);
       cell = document.getElementById(cell_name);
       cell.onmouseup = CatchContext;
       cell.onmousedown = CatchContext;
@@ -286,7 +283,7 @@ function DrawBoard() {
     if ((col != 1) && ((col - 1) % 5 == 0)) {
       col_head_class += " fifth_col_head"; 
     }
-    table_text += '    <th scope="col" id="col' + PadDigits(col,2) + '" class="' + col_head_class + '"></th>\n';
+    table_text += '    <th scope="col" id="col' + PadNumber(col,2) + '" class="' + col_head_class + '"></th>\n';
     table_width += 19;
   }
   table_text += '  </tr>\n';
@@ -304,13 +301,13 @@ function DrawBoard() {
       row_head_class = "fifth_row_head " + row_head_class;
       row_class += " fifth_row_cell";
     }
-    table_text += '  <tr>\n    <th scope="row" id="row' + PadDigits(row,2) + '" class="' + row_head_class + '"></th>\n';
+    table_text += '  <tr>\n    <th scope="row" id="row' + PadNumber(row,2) + '" class="' + row_head_class + '"></th>\n';
     for ( col = 1; col <= board[0].length; col++) {
       col_class = row_class;
       if ((col != 1) && ((col - 1) % 5 == 0)) {
         col_class += " fifth_col_cell";
       }
-      table_text += '<td id="r' + PadDigits(row,2) + 'c' + PadDigits(col,2) + '" class="' + col_class + '"></td>\n';
+      table_text += '<td id="r' + PadNumber(row,2) + 'c' + PadNumber(col,2) + '" class="' + col_class + '"></td>\n';
     }
     table_text += '  </tr>\n';
   }
