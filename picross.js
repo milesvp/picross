@@ -12,6 +12,7 @@ var mouse_button    = 0;
 var erase           = false;
 var last_cell_color = "";
 var undo_stack      = [];
+var this_move       = [];
 var starting_id     = "";
 var second_id       = "";
 var last_id         = "";
@@ -48,11 +49,22 @@ function GlobalMouseUp() {
   starting_id_color = "";
   last_id = ""
   overwrite_color = false;
+  if (this_move.length != 0)
+    undo_stack.push(this_move);
+  this_move = [];
   return false;
 }
 function UndoMove(){
   var move = undo_stack.pop();
-  if (move) move[0].style.backgroundColor = move[1];
+  var cell;
+  var move_value;
+  var length = move.length;
+  var i;
+  for (i = 0; i <= length; i++){
+    move_value = move.pop()
+    cell = document.getElementById(move_value[0]);
+    cell.style.backgroundColor = move_value[1];
+  }
 }
 function GetColor(button) {
   //if (button == 0)
@@ -82,6 +94,7 @@ function BackgroundColorEQ(background_color, color){
 function DrawCell(id, button, overwrite_color) {
   var cell = document.getElementById(id);
   if (BackgroundColorEQ(cell.style.backgroundColor, overwrite_color) || (cell.style.backgroundColor == "")) {
+    this_move.push([id,cell.style.backgroundColor]);
     cell.style.backgroundColor = GetColor(button);
     return true;
   }
@@ -157,6 +170,7 @@ function CatchContext(e) {
     ToggleMouse("down", e.button);
     SetStartingId(e.target.id);
     SetStartingColor(e.target.id, e.button);
+    this_move = [];
   }
   if (e.type == "mouseup") 
     ToggleMouse("up", 0);
