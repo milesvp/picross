@@ -337,7 +337,9 @@ function DrawBoard() {
   var row;
   var col;
   var table_width = parseInt(((board[0].length/2)*10)+50,10);
-  table_text = '  <caption>Picture Crossword!</caption>\n'; 
+  table_text = '<table id="mytable" cellspacing="0" summary="Here We be Picture Crosswording YO!">\n';
+  
+  table_text += '  <caption>Picture Crossword!</caption>\n'; 
   table_text += '  <tr>\n    <th scope="col" id="numcol" class="nobg"></th>\n';
   var col_head_class = "numcol";
   var col_class;
@@ -374,9 +376,11 @@ function DrawBoard() {
     }
     table_text += '  </tr>\n';
   }
-  var mytable = document.getElementById('mytable');
-  mytable.style.width = table_width + 'px';
-  mytable.innerHTML = table_text;
+  table_text += '</table>';
+  
+  var table_container = document.getElementById('table_container');
+  table_container.innerHTML = table_text;
+  document.getElementById('mytable').style.width = table_width + 'px';
   //PrintTable();
   FillClueValues('row');
   FillClueValues('col');
