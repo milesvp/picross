@@ -8,7 +8,7 @@ var starting_color  = "";
 var overwrite_color = false;
 var mou;
 var mouse_down      = false;
-var mouse_button    = 0;
+var mouse_button    = -1;
 var erase           = false;
 var last_cell_color = "";
 var undo_stack      = [];
@@ -16,7 +16,8 @@ var this_move       = [];
 var starting_id     = "";
 var second_id       = "";
 var last_id         = "";
-//mou.button yeilds left=>0, middle=>1, right=>2 other buttons need to be captured differently
+//firefox mou.button yeilds left=>0, middle=>1, right=>2 other buttons need to be captured differently
+//IE mou.button yeilds left=>1, middle=>4, right=>2 other buttons need to be captured differently
 var board;
 
 function PrintTable(){
@@ -42,7 +43,7 @@ function PadNumber(num, totalDigits) {
 }
 function GlobalMouseUp() {
   mouse_down = false;
-  mouse_button = 0;
+  mouse_button = -1;
   erase = false;
   starting_id = "";
   second_id = "";
@@ -161,21 +162,37 @@ function SetStartingColor(id, button){
 function CatchMouseOver(e) {
   if (!e)
       var e = window.event;
-  DrawLine(starting_id, e.target.id, overwrite_color);
+  if (e.target) targ = e.target;
+  else if (e.srcElement) targ = e.srcElement;
+  if (targ.nodeType == 3) targ = targ.parentNode; //defeat safari bug
+  DrawLine(starting_id, targ.id, overwrite_color);
+}
+
+function GetButtonIE(button){
+  if (button == 1) return 0;
+  if (button == 4) return 1;
+  if (button == 2) return 2;
 }
 function CatchContext(e) {
   if (!e) 
     var e = window.event;
+  var button = e.button;
+  if (e.target) targ = e.target;
+  else if (e.srcElement){ //IE
+    targ = e.srcElement;
+    button = GetButtonIE(e.button);
+    }
+  if (targ.nodeType == 3) targ = targ.parentNode; //defeat safari bug
   if (e.type == "mousedown"){
-    ToggleMouse("down", e.button);
-    SetStartingId(e.target.id);
-    SetStartingColor(e.target.id, e.button);
+    ToggleMouse("down", button);
+    SetStartingId(targ.id);
+    SetStartingColor(targ.id, button);
     this_move = [];
   }
   if (e.type == "mouseup") 
     ToggleMouse("up", 0);
   if (mouse_down && (e.type != "contextmenu")) {
-    DrawLine(starting_id, e.target.id, overwrite_color);
+    DrawLine(starting_id, targ.id, overwrite_color);
   }
   e.cancelBubble = true;
   if (e.stopPropagation) 
