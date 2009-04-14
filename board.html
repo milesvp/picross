@@ -17,13 +17,13 @@
   <!-- <textarea id="debug_win" name="debug" rows=10 cols=80></textarea> -->
 </form>
 <script>
-window.onmouseup = GlobalMouseUp;
 window.onload = function() {
   var element = document.getElementById('table_container');
   element.onselectstart = function () { return false; } // ie
-  element.onmousedown = function () { return false;}
+  //element.onmousedown = function () { return false;}
 }
-window.oncontextmenu = GlobalMouseUp;
+document.onmouseup = GlobalMouseUp;
+document.oncontextmenu = GlobalMouseUp;
 NewBoard(5, 5, 50);
 </script>
 
