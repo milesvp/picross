@@ -55,6 +55,9 @@ function GlobalMouseUp() {
   this_move = [];
   return false;
 }
+function SelectStart(){
+  return false;
+}
 function UndoMove(){
   var move = undo_stack.pop();
   var cell;

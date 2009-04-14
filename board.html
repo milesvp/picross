@@ -18,6 +18,11 @@
 </form>
 <script>
 window.onmouseup = GlobalMouseUp;
+window.onload = function() {
+  var element = document.getElementById('table_container');
+  element.onselectstart = function () { return false; } // ie
+  element.onmousedown = function () { return false;}
+}
 window.oncontextmenu = GlobalMouseUp;
 NewBoard(5, 5, 50);
 </script>
