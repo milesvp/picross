@@ -31,7 +31,7 @@ th {
         border-bottom: 1px solid #C1DAD7;
         text-transform: uppercase;
         text-align: center;
-        padding:0px 4px 0px 4px;
+        padding:0 4px 0 4px;
         background: #CAE8EA url(images/bg_header.jpg) no-repeat;
 }
 
@@ -44,7 +44,7 @@ th.nobg {
 }
 
 th.numcol {
-        padding:0px 0px 0px 0px;
+        padding:0;
         border-top: 1px solid #C1DAD7;
         vertical-align:bottom;
 }
