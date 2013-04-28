@@ -9,6 +9,9 @@
 <link rel="stylesheet" type="text/css" media="screen" href="./picross.css" />
 </head>
 <body>
-<!--#include FILE="./board.html" -->
+Welcome to PictureCrossword.com
+<div id="board">
+  <!--#include FILE="./board.html" -->
+</div>
 </body>
 </html>

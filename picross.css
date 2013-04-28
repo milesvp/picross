@@ -4,6 +4,15 @@ body {
         background: #E6EAE9;
 }
 
+#board {
+        margin-left:auto;
+        margin-right:auto;
+}
+
+#undo {
+        float: right;
+}
+
 a {
         color: #c75f3e;
 }

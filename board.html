@@ -1,11 +1,13 @@
-<div id="table_container">
-<table id="mytable" cellspacing="0" summary="Here We be Picture Crosswording YO!">
-<caption>Picture Crossword!</caption>
-</table>
+<div id="board">
+  <div id="table_container">
+    <table id="mytable" cellspacing="0" summary="Here We be Picture Crosswording YO!">
+    <caption>Picture Crossword!</caption>
+    </table>
+  </div>
+  <script type="text/javascript" src="./picross.js">
+  </script>
+  <input id="undo" name="Undo" type="submit" value="Undo Move" onClick="UndoMove()">
 </div>
-<script type="text/javascript" src="./picross.js">
-</script>
-<input name="Undo" type="submit" value="Undo Move" onClick="UndoMove()">
 <br />
 <br />
 <form id="dform" onSubmit="return false">

@@ -64,7 +64,7 @@ function UndoMove(){
   var move_value;
   var length = move.length;
   var i;
-  for (i = 0; i <= length; i++){
+  for (i = 0; i < length; i++){
     move_value = move.pop()
     cell = document.getElementById(move_value[0]);
     cell.style.backgroundColor = move_value[1];
@@ -401,6 +401,7 @@ function DrawBoard() {
   var table_container = document.getElementById('table_container');
   table_container.innerHTML = table_text;
   document.getElementById('mytable').style.width = table_width + 'px';
+  document.getElementById('board').style.width = table_width + 'px';
   //PrintTable();
   FillClueValues('row');
   FillClueValues('col');
