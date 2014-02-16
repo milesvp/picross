@@ -1,0 +1,11 @@
+-draw a square with borders
+
+-draw 2 squares with borders
+
+-draw 4 squares with borders
+
+-write a function that takes (x,y) and draws a game board with x columns and y rows
+
+setup svn for this
+
+accept clicks
