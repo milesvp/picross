@@ -9,20 +9,21 @@ var line_width = 1;
 var alt_line_width = 2;
 var alt_stroke_color = "#000088";
 
-function CreateBoard(width, height) {
+function CreateBoard(dimensions) {
   var board = [];
-  for ( i=0; i<height; i++ ) {
+  for ( i=0; i<dimensions.width; i++ ) {
     var row = [];
-    for ( j=0; j<width; j++ ) {
+    for ( j=0; j<dimensions.height; j++ ) {
       row.push(0);
     }
     board.push(row);
   } 
   return board;
 }
-function DrawSquare(col,row, state) {
-  var xpixel = (col*sq_width)  + board_xoffset + (alt_line_width * (Math.floor(col/5)));
-  var ypixel = (row*sq_height) + board_yoffset + (alt_line_width * (Math.floor(row/5)));
+
+function DrawSquare(row,col, state) {
+  var xpixel = (row*sq_height) + board_yoffset + (alt_line_width * (Math.floor(row/5)));
+  var ypixel = (col*sq_width)  + board_xoffset + (alt_line_width * (Math.floor(col/5)));
   ctx.fillStyle = "#FFFFFF"; 
   if (state == 1) {
     ctx.fillStyle = "#FF0000"; 
@@ -33,7 +34,11 @@ function DrawSquare(col,row, state) {
 }
 
 function GetCol(x){
-  return col = Math.floor((x-board_xoffset+line_width) / (sq_width + (alt_line_width / 5)));
+  return Math.floor((x-board_xoffset+line_width) / (sq_width + (alt_line_width / 5)));
+}
+
+function GetRow(y){
+  return Math.floor((y-board_yoffset+line_width) / (sq_width + (alt_line_width / 5)));
 }
 
 function GetColRow(x,y){
@@ -43,9 +48,9 @@ function GetColRow(x,y){
 }
 
 function DrawBoard(board){
-  for (col=0; col<board[0].length; col++){
-    for (row=0; row<board.length; row++){ 
-      DrawSquare(col,row,board[row][col]);
+  for (row=0; row<board.length; row++){
+    for (col=0; col<board[0].length; col++){ 
+      DrawSquare(row,col,board[row][col]);
     }
   }
   DrawAltLines(board);
@@ -55,8 +60,11 @@ function DrawAltLines(board) {
 
 }
 
+function alertXY(x,y){
+  alert("x:" + x + " y:" + y + " col:" + GetCol(x) + " row:" + GetRow(y));
+}
 
-function getPosition(event)
+function handleClick(event)
 {
   var x = 0;
   var y = 0;
@@ -77,12 +85,13 @@ function getPosition(event)
 
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
-
   
-  alert("x:" + x + " y:" + y + " col:" + GetCol(x));
+  alertXY(x,y);
 } 
 
-var board = CreateBoard(25,14);
+var board_dimensions = { width :25,
+                         height:14 };
+var board = CreateBoard(board_dimensions);
 board[3][2] = 1;
 DrawBoard(board);
-canvas.addEventListener("mousedown", getPosition, false);
+canvas.addEventListener("mousedown", handleClick, false);
