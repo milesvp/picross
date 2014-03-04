@@ -1,10 +1,7 @@
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
 var board_xoffset = 1;
 var board_yoffset = 1;
 var sq_width = 20;
 var sq_height = 20;
-ctx.lineWidth = 1;
 var line_width = 1;
 var alt_line_width = 2;
 var alt_stroke_color = "#000088";
@@ -89,9 +86,38 @@ function handleClick(event)
   alertXY(x,y);
 } 
 
+function CalcCanvasSize(board) {
+  var pixel_width  = (board.width*sq_height)  + (2 * board_xoffset)
+                     + (alt_line_width * (Math.floor(board.width/5 )));
+  var pixel_height = (board.height*sq_width)  + (2 * board_yoffset)
+                     + (alt_line_width * (Math.floor(board.height/5)));
+  if (board.width % 5 == 0) 
+    pixel_width -= alt_line_width;
+  if (board.height % 5 == 0) 
+    pixel_height -= alt_line_height;
+  
+  return { width: pixel_width,
+           height: pixel_height }; 
+}
+
+function LoadCanvas(id, size) {
+  var canvas = document.createElement('canvas');
+  div = document.getElementById(id); 
+  canvas.id     = "myCanvas";
+  canvas.width  = size.width;
+  canvas.height = size.height;
+  canvas.style.zIndex   = 8;
+  canvas.style.position = "absolute";
+  div.appendChild(canvas)
+}
 var board_dimensions = { width :25,
                          height:14 };
 var board = CreateBoard(board_dimensions);
+var foo = CalcCanvasSize(board_dimensions);
+LoadCanvas('board', CalcCanvasSize(board_dimensions));
 board[3][2] = 1;
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+ctx.lineWidth = line_width;
 DrawBoard(board);
 canvas.addEventListener("mousedown", handleClick, false);

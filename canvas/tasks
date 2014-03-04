@@ -8,4 +8,8 @@
 
 -setup svn for this
 
-accept clicks
+-accept clicks
+
+-canvas only as big as the board
+
+capture all clicks on board
