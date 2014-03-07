@@ -1,10 +1,21 @@
-var board_xoffset = 1;
-var board_yoffset = 1;
-var sq_width = 20;
-var sq_height = 20;
-var line_width = 1;
-var alt_line_width = 2;
+var board_xoffset    = 1;
+var board_yoffset    = 1;
+var sq_width         = 20;
+var sq_height        = 20;
+var line_width       = 1;
+var alt_line_width   = 2;
 var alt_stroke_color = "#000088";
+var starting_color   = false;
+var overwrite_color  = false;
+var mouse_down       = false;
+var mouse_button     = false;
+var erase            = false;
+var last_cell_color  = false;
+var undo_stack       = [];
+var this_move        = [];
+var starting_id      = false;
+var second_id        = false;
+var last_id          = false;
 
 function CreateBoard(dimensions) {
   var board = [];
@@ -61,8 +72,7 @@ function alertXY(x,y){
   alert("x:" + x + " y:" + y + " col:" + GetCol(x) + " row:" + GetRow(y));
 }
 
-function handleClick(event)
-{
+function handleClick(event) {
   var x = 0;
   var y = 0;
   if (event.x != undefined && event.y != undefined)
@@ -83,7 +93,9 @@ function handleClick(event)
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
   
-  alertXY(x,y);
+  var col = GetCol(x);
+  var row = GetRow(y);
+  DrawSquare(col, row, 1);
 } 
 
 function CalcCanvasSize(board) {
@@ -98,6 +110,31 @@ function CalcCanvasSize(board) {
   
   return { width: pixel_width,
            height: pixel_height }; 
+}
+
+function GlobalMouseUp() {
+  mouse_down = false;
+  mouse_button = undefined;
+  erase = false;
+  starting_id = '';
+  second_id = '';
+  starting_id_state = '';
+  last_id = '';
+  overwrite_color = false;
+  if (this_move.length != 0)
+    undo_stack.push(this_move);
+  this_move = [];
+  return false;
+}
+
+function ToggleMouse(tog, button) {
+  mouse_button = button;
+  if (mouse_down && tog == "up") {
+    GlobalMouseUp();
+  }
+  else if (!mouse_down && tog == "down") {
+    mouse_down = true;
+  }
 }
 
 function LoadCanvas(id, size) {
@@ -121,3 +158,5 @@ var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
 DrawBoard(board);
 canvas.addEventListener("mousedown", handleClick, false);
+document.onmouseup = GlobalMouseUp;
+document.oncontextmenu = GlobalMouseUp;

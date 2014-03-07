@@ -12,4 +12,10 @@
 
 -canvas only as big as the board
 
-capture all clicks on board
+-capture all clicks on board
+
+-draw click
+
+toggle square on click
+
+update all x,y with point, point.x point.y
