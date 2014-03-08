@@ -36,6 +36,9 @@ function DrawSquare(row,col, state) {
   if (state == 1) {
     ctx.fillStyle = "#FF0000"; 
   }
+  if (state == -1) {
+    ctx.fillStyle = "#888888";
+  }
   ctx.strokeStyle = "#0000FF";
   ctx.fillRect(xpixel,ypixel,sq_width,sq_height);
   ctx.strokeRect(xpixel,ypixel,sq_width,sq_height);
@@ -95,8 +98,16 @@ function handleClick(event) {
   
   var col = GetCol(x);
   var row = GetRow(y);
-  DrawSquare(col, row, 1);
+  var state = ToggleState(board[col][row]);
+  board[col][row] = state;
+  DrawSquare(col, row, state);
 } 
+
+function ToggleState(state) {
+  if (state == 1)
+    return -1;
+  return 1;  
+}
 
 function CalcCanvasSize(board) {
   var pixel_width  = (board.width*sq_height)  + (2 * board_xoffset)
