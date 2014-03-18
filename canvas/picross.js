@@ -16,13 +16,19 @@ var this_move        = [];
 var starting_id      = false;
 var second_id        = false;
 var last_id          = false;
+var left_button      = 0;
+var middle_button    = 1;
+var right_button     = 2;
+var empty_state      = 0;
+var on_state         = 1;
+var x_state          = 2;
 
 function CreateBoard(dimensions) {
   var board = [];
   for ( i=0; i<dimensions.width; i++ ) {
     var row = [];
     for ( j=0; j<dimensions.height; j++ ) {
-      row.push(0);
+      row.push(empty_state);
     }
     board.push(row);
   } 
@@ -36,7 +42,7 @@ function DrawSquare(row,col, state) {
   if (state == 1) {
     ctx.fillStyle = "#FF0000"; 
   }
-  if (state == -1) {
+  if (state == 2) {
     ctx.fillStyle = "#888888";
   }
   ctx.strokeStyle = "#0000FF";
@@ -75,7 +81,24 @@ function alertXY(x,y){
   alert("x:" + x + " y:" + y + " col:" + GetCol(x) + " row:" + GetRow(y));
 }
 
-function handleClick(event) {
+function GetButtonIE(button){
+  if (button == 1) return left_button;
+  if (button == 4) return middle_button;
+  if (button == 2) return right_button;
+}
+
+function GetButton(event) {
+  var button = event.button;
+  if (event.target) 
+    var target = event.target;
+  else if (event.srcElement) { //IE
+    var target = event.srcElement;
+    button = GetButtonIE(event.button);
+  }
+  return button;
+}
+
+function GetMouse(event) {
   var x = 0;
   var y = 0;
   if (event.x != undefined && event.y != undefined)
@@ -95,18 +118,36 @@ function handleClick(event) {
 
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
-  
-  var col = GetCol(x);
-  var row = GetRow(y);
-  var state = ToggleState(board[col][row]);
+
+  return { x:x, 
+           y:y,
+           button:GetButton(event) };
+}
+
+function handleClick(event) {
+  if (!event)
+    var event = window.event;
+  var mouse = GetMouse(event);
+  var col = GetCol(mouse.x);
+  var row = GetRow(mouse.y);
+  var state = ToggleState(board[col][row], mouse.button);
   board[col][row] = state;
   DrawSquare(col, row, state);
-} 
+}
 
-function ToggleState(state) {
-  if (state == 1)
-    return -1;
-  return 1;  
+function ToggleState(state, button) {
+  if (button == left_button) {
+    if (state == on_state)
+      return empty_state;
+    else
+      return on_state;
+  }
+  if (button == right_button) {
+    if (state == x_state)
+      return empty_state;
+    else
+      return x_state;
+  }
 }
 
 function CalcCanvasSize(board) {
@@ -156,14 +197,15 @@ function LoadCanvas(id, size) {
   canvas.height = size.height;
   canvas.style.zIndex   = 8;
   canvas.style.position = "absolute";
-  div.appendChild(canvas)
+  div.appendChild(canvas);
 }
+
 var board_dimensions = { width :25,
                          height:14 };
 var board = CreateBoard(board_dimensions);
 var foo = CalcCanvasSize(board_dimensions);
 LoadCanvas('board', CalcCanvasSize(board_dimensions));
-board[3][2] = 1;
+board[3][2] = on_state;
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
