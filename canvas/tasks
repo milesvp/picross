@@ -18,6 +18,8 @@
 
 -toggle square on click
 
-right click vs left click
+-right click vs left click
 
 update all x,y with point, point.x point.y
+
+click and drag

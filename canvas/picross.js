@@ -14,6 +14,9 @@ var last_cell_color  = false;
 var undo_stack       = [];
 var this_move        = [];
 var starting_id      = false;
+var starting_square  = undefined;
+var second_square    = undefined;
+var to_state         = undefined;
 var second_id        = false;
 var last_id          = false;
 var left_button      = 0;
@@ -33,6 +36,24 @@ function CreateBoard(dimensions) {
     board.push(row);
   } 
   return board;
+}
+
+function CalcCanvasSize(board) {
+  var pixel_width  = (board.width*sq_height)  + (2 * board_xoffset)
+                     + (alt_line_width * (Math.floor(board.width/5 )));
+  var pixel_height = (board.height*sq_width)  + (2 * board_yoffset)
+                     + (alt_line_width * (Math.floor(board.height/5)));
+  if (board.width % 5 == 0) 
+    pixel_width -= alt_line_width;
+  if (board.height % 5 == 0) 
+    pixel_height -= alt_line_height;
+  
+  return { width: pixel_width,
+           height: pixel_height }; 
+}
+
+function DrawLine(point, state) {
+
 }
 
 function DrawSquare(row,col, state) {
@@ -58,10 +79,11 @@ function GetRow(y){
   return Math.floor((y-board_yoffset+line_width) / (sq_width + (alt_line_width / 5)));
 }
 
-function GetColRow(x,y){
-  var col = GetCol(x);
-  var row = GetRow(y);
-  return col,row;
+function GetColRow(point){
+  var col = GetCol(point.x);
+  var row = GetRow(point.y);
+  return { col:col,
+           row:row };
 }
 
 function DrawBoard(board){
@@ -77,8 +99,8 @@ function DrawAltLines(board) {
 
 }
 
-function alertXY(x,y){
-  alert("x:" + x + " y:" + y + " col:" + GetCol(x) + " row:" + GetRow(y));
+function alertXY(point){
+  alert("x:" + point.x + " y:" + point.y + " col:" + GetCol(point.x) + " row:" + GetRow(point.y));
 }
 
 function GetButtonIE(button){
@@ -124,7 +146,7 @@ function GetMouse(event) {
            button:GetButton(event) };
 }
 
-function handleClick(event) {
+function HandleClick(event) {
   if (!event)
     var event = window.event;
   var mouse = GetMouse(event);
@@ -133,6 +155,111 @@ function handleClick(event) {
   var state = ToggleState(board[col][row], mouse.button);
   board[col][row] = state;
   DrawSquare(col, row, state);
+}
+
+function ToggleMouse(tog, button) {
+  mouse_button = button;
+  if (mouse_down && tog == "up") {
+    GlobalMouseUp();
+  }
+  else if (!mouse_down && tog == "down") {
+    mouse_down = true;
+  }
+}
+
+function ToggleAndDrawBoardState(square, button) {
+  if (to_state == undefined) {
+    to_state = ToggleState(board[square.col][square.row], button);
+  }
+  board[square.col][square.row] = to_state;
+  DrawSquare(square.col, square.row, to_state);
+  return to_state;
+}
+
+function HandleMouseDown(event) {
+  if (!event)
+    var event = window.event;
+  var mouse = GetMouse(event);
+  var square = GetColRow(mouse);
+  mouse_button = mouse.button;
+  mouse_down = true;
+  starting_square = square;
+  this_move.push(square);
+  to_state = ToggleAndDrawBoardState(square, mouse.button);
+}
+
+function GetMoveAxis(first_square, second_square) {
+  var col = first_square.col - second_square.col;
+  var row = first_square.row - second_square.row;
+  if (col)
+    col = undefined;
+  else
+    col = first_square.col;
+  if (row)
+    row = undefined;
+  else 
+    row = first_square.row;
+  return { col:col,
+           row:row }
+}
+
+function GetMove(square) {
+  var axis = GetMoveAxis(starting_square, second_square);
+  if (axis.col)
+    return { row:square.row,
+             col:starting_square.col }
+  if (axis.row)
+    return { row:starting_square.row,
+             col:square.col }
+}
+
+function HandleMouseMove(event) {
+  if (!mouse_down)
+    return;
+  var foo;
+  var square = GetColRow(GetMouse(event));
+  if (square.col == starting_square.col && square.row == starting_square.row) {
+    return;
+  }
+  if (second_square == undefined) {
+    second_square = square;
+    this_move.push(square);
+    ToggleAndDrawBoardState(square, mouse_button);
+    return;
+  }
+  if (square.col == second_square.col && square.row == starting_square.row) {
+    return;
+  }
+  var move = GetMove(square);
+  this_move.push(move);
+  ToggleAndDrawBoardState(move, mouse_button); 
+}
+
+function GlobalMouseUp() {
+  mouse_down = false;
+  erase      = false;
+  mouse_button    = undefined;
+  starting_square = undefined;
+  second_square   = undefined;
+  last_square     = undefined;
+  to_state        = undefined;
+  if (this_move.length != 0)
+    undo_stack.push(this_move);
+  this_move = [];
+  return false;
+}
+
+function UndoMove(){
+  var move = undo_stack.pop();
+  var cell;
+  var move_value;
+  var length = move.length;
+  var i;
+  for (i = 0; i < length; i++){
+    move_value = move.pop()
+    cell = document.getElementById(move_value[0]);
+    cell.style.backgroundColor = move_value[1];
+  }
 }
 
 function ToggleState(state, button) {
@@ -147,45 +274,6 @@ function ToggleState(state, button) {
       return empty_state;
     else
       return x_state;
-  }
-}
-
-function CalcCanvasSize(board) {
-  var pixel_width  = (board.width*sq_height)  + (2 * board_xoffset)
-                     + (alt_line_width * (Math.floor(board.width/5 )));
-  var pixel_height = (board.height*sq_width)  + (2 * board_yoffset)
-                     + (alt_line_width * (Math.floor(board.height/5)));
-  if (board.width % 5 == 0) 
-    pixel_width -= alt_line_width;
-  if (board.height % 5 == 0) 
-    pixel_height -= alt_line_height;
-  
-  return { width: pixel_width,
-           height: pixel_height }; 
-}
-
-function GlobalMouseUp() {
-  mouse_down = false;
-  mouse_button = undefined;
-  erase = false;
-  starting_id = '';
-  second_id = '';
-  starting_id_state = '';
-  last_id = '';
-  overwrite_color = false;
-  if (this_move.length != 0)
-    undo_stack.push(this_move);
-  this_move = [];
-  return false;
-}
-
-function ToggleMouse(tog, button) {
-  mouse_button = button;
-  if (mouse_down && tog == "up") {
-    GlobalMouseUp();
-  }
-  else if (!mouse_down && tog == "down") {
-    mouse_down = true;
   }
 }
 
@@ -210,6 +298,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
 DrawBoard(board);
-canvas.addEventListener("mousedown", handleClick, false);
+canvas.addEventListener("mousedown", HandleMouseDown, false);
+canvas.addEventListener("mousemove", HandleMouseMove, false);
 document.onmouseup = GlobalMouseUp;
-document.oncontextmenu = GlobalMouseUp;
+document.oncontextmenu = function () { return false; };
