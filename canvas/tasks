@@ -20,6 +20,8 @@
 
 -right click vs left click
 
-update all x,y with point, point.x point.y
+-update all x,y with point, point.x point.y
 
-click and drag
+-click and drag
+
+speed up mousemove lag (without having to restart firefox)

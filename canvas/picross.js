@@ -13,6 +13,7 @@ var erase            = false;
 var last_cell_color  = false;
 var undo_stack       = [];
 var this_move        = [];
+var mouse_move_hash  = {};
 var starting_id      = false;
 var starting_square  = undefined;
 var second_square    = undefined;
@@ -25,6 +26,7 @@ var right_button     = 2;
 var empty_state      = 0;
 var on_state         = 1;
 var x_state          = 2;
+var dirty            = false;
 
 function CreateBoard(dimensions) {
   var board = [];
@@ -73,6 +75,7 @@ function DrawSquare(row,col, state) {
 
 function GetCol(x){
   return Math.floor((x-board_xoffset+line_width) / (sq_width + (alt_line_width / 5)));
+var dirty            = false;
 }
 
 function GetRow(y){
@@ -158,6 +161,7 @@ function HandleClick(event) {
 }
 
 function ToggleMouse(tog, button) {
+  //do final draw
   mouse_button = button;
   if (mouse_down && tog == "up") {
     GlobalMouseUp();
@@ -185,7 +189,28 @@ function HandleMouseDown(event) {
   mouse_down = true;
   starting_square = square;
   this_move.push(square);
+  mouse_move_hash[[square.col, square.row]] = true;
   to_state = ToggleAndDrawBoardState(square, mouse.button);
+  canvas.addEventListener("mousemove", HandleMouseMoveList, false);
+}
+
+function DrawChanges() {
+  if (!dirty) {
+    return;
+  }
+  for (var key in mouse_move_hash) {
+    var tmp = key.split(',');
+    var square = { col:tmp[0],
+                   row:tmp[1] };
+    if (board[square.col][square.row] != empty_state  
+        && to_state != empty_state) {
+      continue;
+    }
+    board[square.col][square.row] = to_state;
+    DrawSquare(square.col, square.row, to_state);
+  }
+  dirty = false;
+  return;
 }
 
 function GetMoveAxis(first_square, second_square) {
@@ -213,6 +238,20 @@ function GetMove(square) {
              col:square.col }
 }
 
+function HandleMouseMoveList(event) {
+  var square = GetColRow(GetMouse(event));
+  if (mouse_move_hash[[square.col, square.row]] == undefined) {
+    if (second_square == undefined) {
+      second_square = square;
+    }
+    var move = GetMove(square);
+    this_move.push(move);
+    mouse_move_hash[[move.col, move.row]] = true;
+    dirty = true;
+  }
+  return;
+}
+
 function HandleMouseMove(event) {
   if (!mouse_down)
     return;
@@ -236,6 +275,9 @@ function HandleMouseMove(event) {
 }
 
 function GlobalMouseUp() {
+  canvas.removeEventListener("mousemove", HandleMouseMoveList, false);
+  //do final draw
+  mouse_move_hash = {};
   mouse_down = false;
   erase      = false;
   mouse_button    = undefined;
@@ -299,6 +341,7 @@ var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
 DrawBoard(board);
 canvas.addEventListener("mousedown", HandleMouseDown, false);
-canvas.addEventListener("mousemove", HandleMouseMove, false);
 document.onmouseup = GlobalMouseUp;
 document.oncontextmenu = function () { return false; };
+var redraw_timer = setInterval(DrawChanges, 1000/20);
+
