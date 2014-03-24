@@ -28,26 +28,14 @@ var on_state         = 1;
 var x_state          = 2;
 var dirty            = false;
 
-function CreateBoard(dimensions) {
-  var board = [];
-  for ( i=0; i<dimensions.width; i++ ) {
-    var row = [];
-    for ( j=0; j<dimensions.height; j++ ) {
-      row.push(empty_state);
-    }
-    board.push(row);
-  } 
-  return board;
-}
-
 function CalcCanvasSize(board) {
-  var pixel_width  = (board.width*sq_height)  + (2 * board_xoffset)
-                     + (alt_line_width * (Math.floor(board.width/5 )));
-  var pixel_height = (board.height*sq_width)  + (2 * board_yoffset)
-                     + (alt_line_width * (Math.floor(board.height/5)));
-  if (board.width % 5 == 0) 
+  var pixel_width  = (board.cols*sq_height)  + (2 * board_xoffset)
+                     + (alt_line_width * (Math.floor(board.cols/5 )));
+  var pixel_height = (board.rows*sq_width)  + (2 * board_yoffset)
+                     + (alt_line_width * (Math.floor(board.rows/5)));
+  if (board.cols % 5 == 0) 
     pixel_width -= alt_line_width;
-  if (board.height % 5 == 0) 
+  if (board.rows % 5 == 0) 
     pixel_height -= alt_line_height;
   
   return { width: pixel_width,
@@ -330,16 +318,32 @@ function LoadCanvas(id, size) {
   div.appendChild(canvas);
 }
 
-var board_dimensions = { width :25,
-                         height:14 };
-var board = CreateBoard(board_dimensions);
+function CreateBoard(dimensions, chance) {
+  //This function determines the color values of all spaces
+  //chance is a float
+  var board = new Array(dimensions.cols);
+  for (var col=0;col<dimensions.cols;col++){
+    board[col] = new Array(dimensions.rows);
+    for (var row=0;row<dimensions.rows;row++){
+      if (Math.random()<chance) 
+        board[col][row] = on_state;
+      else 
+        board[col][row] = empty_state;
+    }
+  }
+  return board;
+}
+
+var board_dimensions = { cols :25,
+                         rows:14 };
+var board = CreateBoard(board_dimensions, 0);
+var solution = CreateBoard(board_dimensions, .5);
 var foo = CalcCanvasSize(board_dimensions);
 LoadCanvas('board', CalcCanvasSize(board_dimensions));
-board[3][2] = on_state;
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
-DrawBoard(board);
+DrawBoard(solution);
 canvas.addEventListener("mousedown", HandleMouseDown, false);
 document.onmouseup = GlobalMouseUp;
 document.oncontextmenu = function () { return false; };
