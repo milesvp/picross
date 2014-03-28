@@ -5,6 +5,7 @@ var sq_height        = 20;
 var line_width       = 1;
 var alt_line_width   = 2;
 var alt_stroke_color = "#000088";
+var text_color       = "#FFFFFF";
 var starting_color   = false;
 var overwrite_color  = false;
 var mouse_down       = false;
@@ -27,20 +28,6 @@ var empty_state      = 0;
 var on_state         = 1;
 var x_state          = 2;
 var dirty            = false;
-
-function CalcCanvasSize(board) {
-  var pixel_width  = (board.cols*sq_height)  + (2 * board_xoffset)
-                     + (alt_line_width * (Math.floor(board.cols/5 )));
-  var pixel_height = (board.rows*sq_width)  + (2 * board_yoffset)
-                     + (alt_line_width * (Math.floor(board.rows/5)));
-  if (board.cols % 5 == 0) 
-    pixel_width -= alt_line_width;
-  if (board.rows % 5 == 0) 
-    pixel_height -= alt_line_height;
-  
-  return { width: pixel_width,
-           height: pixel_height }; 
-}
 
 function DrawLine(point, state) {
 
@@ -334,8 +321,35 @@ function CreateBoard(dimensions, chance) {
   return board;
 }
 
-var board_dimensions = { cols :25,
-                         rows:14 };
+function CalcRowCluesSize(board) {
+  //worst case alternating squares resulting n/2+1 clues
+  return height;
+}
+
+function CalcColCluesSize(board) {
+  for (var row in board) {
+    continue;
+  }
+  return width;
+}
+
+function CalcCanvasSize(board) {
+  var pixel_width  = (board.cols*sq_height)  + (2 * board_xoffset)
+                     + (alt_line_width * (Math.floor(board.cols/5 )));
+  var pixel_height = (board.rows*sq_width)  + (2 * board_yoffset)
+                     + (alt_line_width * (Math.floor(board.rows/5)));
+  if (board.cols % 5 == 0) 
+    pixel_width -= alt_line_width;
+  if (board.rows % 5 == 0) 
+    pixel_height -= alt_line_height;
+  
+  return { width: pixel_width,
+           height: pixel_height }; 
+}
+
+
+var board_dimensions = { cols:6,
+                         rows:4 };
 var board = CreateBoard(board_dimensions, 0);
 var solution = CreateBoard(board_dimensions, .5);
 var foo = CalcCanvasSize(board_dimensions);
@@ -345,6 +359,11 @@ var ctx = canvas.getContext("2d");
 ctx.lineWidth = line_width;
 DrawBoard(solution);
 canvas.addEventListener("mousedown", HandleMouseDown, false);
+ctx.fillStyle = text_color;
+ctx.font = "italic 11pt Ariel";
+ctx.fillStyle = "#000000";
+ctx.fillText('1 1 1', 15, 16);
+console.log(ctx.measureText('1 1 1'));
 document.onmouseup = GlobalMouseUp;
 document.oncontextmenu = function () { return false; };
 var redraw_timer = setInterval(DrawChanges, 1000/20);

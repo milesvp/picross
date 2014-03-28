@@ -26,6 +26,15 @@
 
 -speed up mousemove lag (without having to restart firefox)
 
-build clues
+-build clues
 
-build starting board
+-build starting board
+
+-draw digits on canvas
+
+make space for clues
+
+show clues for cols
+
+show clues for rows
+
