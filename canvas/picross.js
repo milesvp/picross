@@ -50,7 +50,6 @@ function DrawSquare(row,col, state) {
 
 function GetCol(x){
   return Math.floor((x-board_xoffset+line_width) / (sq_width + (alt_line_width / 5)));
-var dirty            = false;
 }
 
 function GetRow(y){
@@ -319,6 +318,68 @@ function CreateBoard(dimensions, chance) {
     }
   }
   return board;
+}
+
+function CalcRowClues(board) {
+  var final_clues = [];
+  var curr_clues = [];
+  for (var i = 0; i < board[0].length; i++) {
+    final_clues[i] = [];
+    curr_clues[i] = 0;
+  }
+  for (var x = 0; x < board.length; x++) {
+    for (var y = 0; y < board[x].length; y++) {
+      if (board[x][y] != on_state) {
+        if (curr_clues[y] == 0) {
+          continue;
+        }
+        else {
+          final_clues[y].push(curr_clues[y]);
+          curr_clues[y] = 0;
+        }
+      }
+      else {
+        curr_clues[y] += 1;
+      }
+    }
+  } 
+  for (var i = 0; i < curr_clues.length; i++) {
+    if (curr_clues[i]) {
+      final_clues[i].push(curr_clues[i]);
+    }
+  }
+  return final_clues; 
+}
+
+function CalcColClues(board) {
+  var final_clues = [];
+  var curr_clues = [];
+  for (var i = 0; i < board.length; i++) {
+    final_clues.push([]);
+    curr_clues.push(0);
+  }
+  for (var x = 0; x < board.length; x++) {
+    for (var y = 0; y < board[x].length; y++) {
+      if  (board[x][y] != on_state) {
+        if (curr_clues[x] == 0) {
+          continue;
+        }
+        else {
+          final_clues[x].push(curr_clues[x]);
+          curr_clues[x] = 0;
+        }
+      }
+      else {
+        curr_clues[x] += 1;
+      }
+    }
+  }
+  for (var i = 0; i < curr_clues.length; i++) {
+    if (curr_clues[i]) {
+      final_clues[i].push(curr_clues[i]);
+    }
+  }
+  return final_clues; 
 }
 
 function CalcRowCluesSize(board) {
