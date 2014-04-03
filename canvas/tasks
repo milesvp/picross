@@ -32,9 +32,18 @@
 
 -draw digits on canvas
 
-make space for clues
+-calculate clues
+
+-make space for rows clues
+
+-show clues for rows
+
+fix 0 clues not showing
+
+convert all x/y pixel calcs with GetX()/GetY()
 
 show clues for cols
 
-show clues for rows
+make space for col clues
+
 
