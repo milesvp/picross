@@ -388,7 +388,7 @@ function CalcRowClues(board) {
     }
   } 
   for (var i = 0; i < curr_clues.length; i++) {
-    if (curr_clues[i]) {
+    if (final_clues[i].length == 0) {
       final_clues[i].push(curr_clues[i]);
     }
   }
