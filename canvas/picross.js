@@ -1,10 +1,10 @@
-var board_xoffset     = 1;
-var board_yoffset     = 1;
+var board_xoffset     = 30;
+var board_yoffset     = 30;
 var sq_width          = 20;
 var sq_height         = 20;
 var board_font        = "italic 11pt Ariel";
-var line_width        = 1;
-var alt_line_width    = 2;
+var line_width        = 5;
+var alt_line_width    = 9;
 var alt_stroke_color  = "#000088";
 var text_color        = "#000000";
 var starting_color    = false;
@@ -48,6 +48,7 @@ function DrawSquare(col, row, state) {
     board_ctx.fillStyle = "#888888";
   }
   board_ctx.strokeStyle = "#0000FF";
+  board_ctx.lineWidth = line_width;
   board_ctx.fillRect(xpixel,ypixel,sq_width,sq_height);
   board_ctx.strokeRect(xpixel,ypixel,sq_width,sq_height);
 }
@@ -61,7 +62,12 @@ function GetRow(y){
 }
 
 function GetX(col){
-  return (col*sq_height) + board_xoffset + (alt_line_width * (Math.floor(col/5))) + canvas_dimensions.row_clues_width + clue_row_spacer;
+  if ((canvas_dimensions === undefined) || 
+      (canvas_dimensions.row_clues_width === undefined)) 
+    var clues_width = 0;
+  else
+    var clues_width = canvas_dimensions.row_clues_width + clue_row_spacer;
+  return (col*sq_height) + board_xoffset + (alt_line_width * (Math.floor(col/5))) + clues_width;
 }
 
 function GetY(row){
@@ -443,8 +449,7 @@ function CalcColCluesSize(clues) {
 }
 
 function CalcCanvasSize(board) {
-  var pixel_width  = (board.length*sq_height)  + (2 * board_xoffset)
-                     + (alt_line_width * (Math.floor(board.length/5 )));
+  var pixel_width  = GetX(board.length) + line_width;
   var pixel_height = (board[0].length*sq_width)  + (2 * board_yoffset)
                      + (alt_line_width * (Math.floor(board[0].length/5)));
   if (board.length % 5 == 0) 
@@ -474,7 +479,7 @@ document.oncontextmenu = function () { return false; };
 var redraw_timer = setInterval(DrawChanges, 1000/20);
 
 
-var board_dimensions = { cols:6,
+var board_dimensions = { cols:16,
                          rows:4 };
 var board = CreateBoard(board_dimensions, 0);
 var solution = CreateBoard(board_dimensions, .5);

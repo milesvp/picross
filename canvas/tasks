@@ -38,9 +38,15 @@
 
 -show clues for rows
 
-fix 0 clues not showing
+-fix 0 clues not showing
 
-convert all x/y pixel calcs with GetX()/GetY()
+-convert all xpixel calcs with GetX()
+
+fix bug with GetCol(x)
+
+convert all ypixel calcs with GetY()
+
+fix bug with GetRow(y)
 
 show clues for cols
 
