@@ -2,8 +2,9 @@ var board_xoffset     = 30;
 var board_yoffset     = 30;
 var sq_width          = 20;
 var sq_height         = 20;
+var alt_line_freq     = 5;
 var board_font        = "italic 11pt Ariel";
-var line_width        = 5;
+var line_width        = 8;
 var alt_line_width    = 9;
 var alt_stroke_color  = "#000088";
 var text_color        = "#000000";
@@ -49,16 +50,27 @@ function DrawSquare(col, row, state) {
   }
   board_ctx.strokeStyle = "#0000FF";
   board_ctx.lineWidth = line_width;
-  board_ctx.fillRect(xpixel,ypixel,sq_width,sq_height);
+  board_ctx.fillRect(xpixel+(line_width/2),ypixel+(line_width/2),sq_width-line_width,sq_height-line_width);
   board_ctx.strokeRect(xpixel,ypixel,sq_width,sq_height);
 }
 
 function GetCol(x){
-  return Math.floor((x-board_xoffset+line_width-canvas_dimensions.row_clues_width) / (sq_width + (alt_line_width / 5)));
+  var clues_width = clue_row_spacer + canvas_dimensions.row_clues_width;
+  var board_x = x - clues_width - board_xoffset + Math.floor(line_width / 4);
+  console.log(board_x);
+  if (board_x < 0)
+    return undefined;
+  var alt_line_widths = Math.floor(board_x / (sq_width * alt_line_freq)) * alt_line_width;
+  return Math.floor((board_x - alt_line_widths)/sq_width);
+}
+
+function GetColold(x){
+  var clues_width = clue_row_spacer + canvas_dimensions.row_clues_width;
+  return Math.floor((x-board_xoffset-clues_width) / (sq_width + Math.floor(alt_line_width / alt_line_freq)));
 }
 
 function GetRow(y){
-  return Math.floor((y-board_yoffset+line_width) / (sq_width + (alt_line_width / 5)));
+  return Math.floor((y-board_yoffset+line_width) / (sq_width + (alt_line_width / alt_line_freq)));
 }
 
 function GetX(col){
@@ -67,11 +79,11 @@ function GetX(col){
     var clues_width = 0;
   else
     var clues_width = canvas_dimensions.row_clues_width + clue_row_spacer;
-  return (col*sq_height) + board_xoffset + (alt_line_width * (Math.floor(col/5))) + clues_width;
+  return (col*(sq_width)) + board_xoffset + (alt_line_width * (Math.floor(col/alt_line_freq))) + clues_width;
 }
 
 function GetY(row){
-  return (row*sq_width)  + board_yoffset + (alt_line_width * (Math.floor(row/5)));
+  return (row*sq_height)  + board_yoffset + (alt_line_width * (Math.floor(row/alt_line_freq)));
 }
 
 function GetColRow(point){
@@ -87,7 +99,7 @@ function DrawBoard(board){
     board_ctx.fillStyle = text_color;
     board_ctx.font = '13px Ariel';//board_font;
     board_ctx.textAlign = 'right';
-    board_ctx.fillText(row_clues[i], canvas_dimensions.row_clues_width, 16 + GetY(i));
+    board_ctx.fillText(row_clues[i], canvas_dimensions.row_clues_width + board_xoffset, 16 + GetY(i));
   }
   for (var row=0; row<board.length; row++){
     for (var col=0; col<board[0].length; col++){ 
@@ -184,6 +196,7 @@ function HandleMouseDown(event) {
   var square = GetColRow(mouse);
   mouse_button = mouse.button;
   mouse_down = true;
+  console.log(mouse);
   starting_square = square;
   this_move.push(square);
   mouse_move_hash[[square.col, square.row]] = true;
@@ -451,10 +464,10 @@ function CalcColCluesSize(clues) {
 function CalcCanvasSize(board) {
   var pixel_width  = GetX(board.length) + line_width;
   var pixel_height = (board[0].length*sq_width)  + (2 * board_yoffset)
-                     + (alt_line_width * (Math.floor(board[0].length/5)));
-  if (board.length % 5 == 0) 
+                     + (alt_line_width * (Math.floor(board[0].length/alt_line_freq)));
+  if (board.length % alt_line_freq == 0) 
     pixel_width -= alt_line_width;
-  if (board[0].length % 5 == 0) 
+  if (board[0].length % alt_line_freq == 0) 
     pixel_height -= alt_line_height;
   
   var row_clues_width = CalcRowCluesSize(CalcRowClues(board));
@@ -479,7 +492,7 @@ document.oncontextmenu = function () { return false; };
 var redraw_timer = setInterval(DrawChanges, 1000/20);
 
 
-var board_dimensions = { cols:16,
+var board_dimensions = { cols:36,
                          rows:4 };
 var board = CreateBoard(board_dimensions, 0);
 var solution = CreateBoard(board_dimensions, .5);
@@ -487,6 +500,11 @@ board_ctx.font = board_font;
 var canvas_dimensions = CalcCanvasSize(solution);
 ResizeCanvas(canvas_dimensions);
 DrawBoard(solution);
+board_ctx.lineWidth = line_width;
+board_ctx.fillStyle = "#FF0000";
+board_ctx.fillRect(8,8,sq_width,sq_height);
+board_ctx.strokeRect(28,8,sq_width,sq_height);
+board_ctx.fillRect(8,28,sq_width,sq_height);
 
 
 
