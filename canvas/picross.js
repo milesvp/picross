@@ -56,12 +56,14 @@ function DrawSquare(col, row, state) {
 
 function GetCol(x){
   var clues_width = clue_row_spacer + canvas_dimensions.row_clues_width;
-  var board_x = x - clues_width - board_xoffset + Math.floor(line_width / 4);
+  var board_x = x - (clues_width + board_xoffset);
   console.log(board_x);
-  if (board_x < 0)
+  if (board_x < 0) {
     return undefined;
-  var alt_line_widths = Math.floor(board_x / (sq_width * alt_line_freq)) * alt_line_width;
-  return Math.floor((board_x - alt_line_widths)/sq_width);
+  };
+  grouping = Math.floor(board_x / ((sq_width * alt_line_freq) + alt_line_width));
+  remainder = Math.floor((board_x - (grouping * ((sq_width * alt_line_freq) + alt_line_width))) / sq_width);
+  return (grouping * alt_line_freq) + remainder;
 }
 
 function GetColold(x){
