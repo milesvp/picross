@@ -72,7 +72,15 @@ function GetColold(x){
 }
 
 function GetRow(y){
-  return Math.floor((y-board_yoffset+line_width) / (sq_width + (alt_line_width / alt_line_freq)));
+  var clues_height = clue_row_spacer;// + canvas_dimensions.row_clues_height;
+  var board_y = y - (clues_height + board_yoffset);
+  console.log(board_y);
+  if (board_y < 0) {
+    return undefined;
+  };
+  grouping = Math.floor(board_y / ((sq_height * alt_line_freq) + alt_line_width));
+  remainder = Math.floor((board_y - (grouping * ((sq_height * alt_line_freq) + alt_line_width))) / sq_height);
+  return (grouping * alt_line_freq) + remainder;
 }
 
 function GetX(col){
@@ -465,8 +473,7 @@ function CalcColCluesSize(clues) {
 
 function CalcCanvasSize(board) {
   var pixel_width  = GetX(board.length) + line_width;
-  var pixel_height = (board[0].length*sq_width)  + (2 * board_yoffset)
-                     + (alt_line_width * (Math.floor(board[0].length/alt_line_freq)));
+  var pixel_height = GetY(board[0].length) + line_width;
   if (board.length % alt_line_freq == 0) 
     pixel_width -= alt_line_width;
   if (board[0].length % alt_line_freq == 0) 

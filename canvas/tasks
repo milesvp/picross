@@ -42,11 +42,11 @@
 
 -convert all xpixel calcs with GetX()
 
-fix bug with GetCol(x)
+-fix bug with GetCol(x)
 
-convert all ypixel calcs with GetY()
+-convert all ypixel calcs with GetY()
 
-fix bug with GetRow(y)
+-fix bug with GetRow(y)
 
 show clues for cols
 
