@@ -4,8 +4,8 @@ var sq_width          = 20;
 var sq_height         = 20;
 var alt_line_freq     = 5;
 var board_font        = "italic 11pt Ariel";
-var line_width        = 2;
-var alt_line_width    = 3;
+var line_width        = 4;
+var alt_line_width    = 18;
 var alt_stroke_color  = "#000088";
 var text_color        = "#000000";
 var starting_color    = false;
@@ -55,9 +55,8 @@ function DrawSquare(col, row, state) {
 }
 
 function GetCol(x){
-  var clues_width = clue_row_spacer + canvas_dimensions.row_clues_width;
-  var board_x = x - (clues_width + board_xoffset);
-  console.log(board_x);
+  var board_x = x - (board_xoffset);
+//  console.log(board_x);
   if (board_x < 0) {
     return undefined;
   };
@@ -67,14 +66,13 @@ function GetCol(x){
 }
 
 function GetColold(x){
-  var clues_width = clue_row_spacer + canvas_dimensions.row_clues_width;
-  return Math.floor((x-board_xoffset-clues_width) / (sq_width + Math.floor(alt_line_width / alt_line_freq)));
+  return Math.floor((x-board_xoffset) / (sq_width + Math.floor(alt_line_width / alt_line_freq)));
 }
 
 function GetRow(y){
   var clues_height = clue_row_spacer;// + canvas_dimensions.row_clues_height;
   var board_y = y - (clues_height + board_yoffset);
-  console.log(board_y);
+//  console.log(board_y);
   if (board_y < 0) {
     return undefined;
   };
@@ -84,12 +82,7 @@ function GetRow(y){
 }
 
 function GetX(col){
-  if ((canvas_dimensions === undefined) || 
-      (canvas_dimensions.row_clues_width === undefined)) 
-    var clues_width = 0;
-  else
-    var clues_width = canvas_dimensions.row_clues_width + clue_row_spacer;
-  return (col*(sq_width)) + board_xoffset + (alt_line_width * (Math.floor(col/alt_line_freq))) + clues_width;
+  return (col*(sq_width)) + board_xoffset + (alt_line_width * (Math.floor(col/alt_line_freq)));
 }
 
 function GetY(row){
@@ -103,13 +96,13 @@ function GetColRow(point){
            row:row };
 }
 
-function DrawBoard(board){
-  var row_clues = CalcRowClues(board);
+function DrawBoard(board, solution){
+  var row_clues = CalcRowClues(solution);
   for (var i=0; i<row_clues.length; i++){ 
-    board_ctx.fillStyle = text_color;
-    board_ctx.font = '13px Ariel';//board_font;
-    board_ctx.textAlign = 'right';
-    board_ctx.fillText(row_clues[i], canvas_dimensions.row_clues_width + board_xoffset, 16 + GetY(i));
+    clues_ctx.fillStyle = text_color;
+    clues_ctx.font = '13px Ariel';//board_font;
+    clues_ctx.textAlign = 'right';
+    clues_ctx.fillText(row_clues[i], canvas_dimensions.row_clues_width + board_xoffset, 16 + GetY(i));
   }
   for (var row=0; row<board.length; row++){
     for (var col=0; col<board[0].length; col++){ 
@@ -160,8 +153,8 @@ function GetMouse(event) {
         document.documentElement.scrollTop;
   }
 
-  x -= canvas.offsetLeft;
-  y -= canvas.offsetTop;
+  x -= board_canvas.offsetLeft;
+  y -= board_canvas.offsetTop;
 
   return { x:x, 
            y:y,
@@ -211,7 +204,7 @@ function HandleMouseDown(event) {
   this_move.push(square);
   mouse_move_hash[[square.col, square.row]] = true;
   to_state = ToggleAndDrawBoardState(square, mouse.button);
-  canvas.addEventListener("mousemove", HandleMouseMoveList, false);
+  board_canvas.addEventListener("mousemove", HandleMouseMoveList, false);
 }
 
 function DrawChanges() {
@@ -250,10 +243,10 @@ function GetMoveAxis(first_square, second_square) {
 
 function GetMove(square) {
   var axis = GetMoveAxis(starting_square, second_square);
-  if (axis.col)
+  if (axis.col !== undefined)
     return { row:square.row,
              col:starting_square.col }
-  if (axis.row)
+  if (axis.row !== undefined)
     return { row:starting_square.row,
              col:square.col }
 }
@@ -295,7 +288,7 @@ function HandleMouseMove(event) {
 }
 
 function GlobalMouseUp() {
-  canvas.removeEventListener("mousemove", HandleMouseMoveList, false);
+  board_canvas.removeEventListener("mousemove", HandleMouseMoveList, false);
   //do final draw
   mouse_move_hash = {};
   mouse_down = false;
@@ -365,10 +358,10 @@ function Load3Canvas(id) {
   return canvas;
 }
 
-function LoadCanvas(id) {
+function LoadCanvas(div_id, canvas_name) {
   var canvas = document.createElement('canvas');
-  div = document.getElementById(id); 
-  canvas.id     = "myCanvas";
+  div = document.getElementById(div_id); 
+  canvas.id     = canvas_name;
   canvas.width  = 1;
   canvas.height = 1;
   canvas.style.zIndex   = 8;
@@ -459,7 +452,7 @@ function CalcRowCluesSize(clues) {
   var longest_text_size = 0;
   var text_size;
   for (var i = 0; i < clues.length; i++) {
-    text_size = board_ctx.measureText(clues[i]);
+    text_size = clues_ctx.measureText(clues[i]);
     if (text_size.width > longest_text_size) {
       longest_text_size = text_size.width;
     }
@@ -486,29 +479,35 @@ function CalcCanvasSize(board) {
 }
 
 function ResizeCanvas(dimensions) {
-  canvas.width = dimensions.width + dimensions.row_clues_width + clue_row_spacer;
-  canvas.height = dimensions.height;
+  board_canvas.width  = dimensions.width;
+  board_canvas.height = dimensions.height;
+  clues_canvas.width  = clue_row_spacer + dimensions.row_clues_width;;
+  clues_canvas.height = dimensions.height;
+  document.getElementById('clues').style.width = clues_canvas.width; 
+  document.getElementById('board').style.marginLeft = clues_canvas.width;
 }
 
 
-var canvas = LoadCanvas('board');
-var board_ctx = canvas.getContext("2d");
+var clues_canvas = LoadCanvas('gamediv', 'clues');
+var board_canvas = LoadCanvas('gamediv', 'board');
+var board_ctx = board_canvas.getContext("2d");
+var clues_ctx = clues_canvas.getContext("2d");
 board_ctx.lineWidth = line_width;
-canvas.addEventListener("mousedown", HandleMouseDown, false);
+board_canvas.addEventListener("mousedown", HandleMouseDown, false);
 
 document.onmouseup = GlobalMouseUp;
 document.oncontextmenu = function () { return false; };
 var redraw_timer = setInterval(DrawChanges, 1000/20);
 
 
-var board_dimensions = { cols:36,
+var board_dimensions = { cols:29,
                          rows:24 };
 var board = CreateBoard(board_dimensions, 0);
 var solution = CreateBoard(board_dimensions, .5);
-board_ctx.font = board_font;
+clues_ctx.font = board_font;
 var canvas_dimensions = CalcCanvasSize(solution);
 ResizeCanvas(canvas_dimensions);
-DrawBoard(solution);
+DrawBoard(board, solution);
 board_ctx.lineWidth = line_width;
 board_ctx.fillStyle = "#FF0000";
 //board_ctx.fillRect(8,8,sq_width,sq_height);
