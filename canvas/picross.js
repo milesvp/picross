@@ -1,11 +1,11 @@
-var board_xoffset     = 30;
-var board_yoffset     = 30;
+var board_xoffset     = 5;
+var board_yoffset     = 5;
 var sq_width          = 20;
 var sq_height         = 20;
 var alt_line_freq     = 5;
 var board_font        = "italic 11pt Ariel";
-var line_width        = 8;
-var alt_line_width    = 9;
+var line_width        = 2;
+var alt_line_width    = 3;
 var alt_stroke_color  = "#000088";
 var text_color        = "#000000";
 var starting_color    = false;
@@ -502,7 +502,7 @@ var redraw_timer = setInterval(DrawChanges, 1000/20);
 
 
 var board_dimensions = { cols:36,
-                         rows:4 };
+                         rows:24 };
 var board = CreateBoard(board_dimensions, 0);
 var solution = CreateBoard(board_dimensions, .5);
 board_ctx.font = board_font;
@@ -511,9 +511,9 @@ ResizeCanvas(canvas_dimensions);
 DrawBoard(solution);
 board_ctx.lineWidth = line_width;
 board_ctx.fillStyle = "#FF0000";
-board_ctx.fillRect(8,8,sq_width,sq_height);
-board_ctx.strokeRect(28,8,sq_width,sq_height);
-board_ctx.fillRect(8,28,sq_width,sq_height);
+//board_ctx.fillRect(8,8,sq_width,sq_height);
+//board_ctx.strokeRect(28,8,sq_width,sq_height);
+//board_ctx.fillRect(8,28,sq_width,sq_height);
 
 
 
